@@ -1,0 +1,117 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "ExterView Copilot Actions",
+  "description": "M365 Copilot actions for candidate management",
+  "version": "1.0.0",
+  "actions": [
+    {
+      "name": "getTopCandidates",
+      "description": "Retrieve top candidates for a position",
+      "type": "read",
+      "schema": {
+        "type": "object",
+        "properties": {
+          "action": {
+            "type": "string",
+            "const": "getTopCandidates"
+          },
+          "parameters": {
+            "type": "object",
+            "properties": {
+              "positionId": {
+                "type": "string",
+                "description": "Position ID to retrieve candidates for"
+              },
+              "limit": {
+                "type": "integer",
+                "minimum": 1,
+                "maximum": 50,
+                "default": 10,
+                "description": "Number of top candidates to return"
+              },
+              "sortBy": {
+                "type": "string",
+                "enum": ["score", "experience", "matchPercentage"],
+                "default": "score",
+                "description": "Sorting criteria"
+              }
+            },
+            "required": ["positionId"]
+          }
+        },
+        "required": ["action", "parameters"]
+      }
+    },
+    {
+      "name": "scheduleInterview",
+      "description": "Schedule an interview with a candidate",
+      "type": "write",
+      "schema": {
+        "type": "object",
+        "properties": {
+          "action": {
+            "type": "string",
+            "const": "scheduleInterview"
+          },
+          "parameters": {
+            "type": "object",
+            "properties": {
+              "candidateId": {
+                "type": "string",
+                "pattern": "^cand-[0-9]+$",
+                "description": "Candidate identifier"
+              },
+              "interviewDateTime": {
+                "type": "string",
+                "format": "date-time",
+                "description": "Interview date and time (ISO 8601)"
+              },
+              "durationMinutes": {
+                "type": "integer",
+                "minimum": 15,
+                "maximum": 240,
+                "default": 60,
+                "description": "Interview duration in minutes"
+              },
+              "interviewerEmails": {
+                "type": "array",
+                "items": {
+                  "type": "string",
+                  "format": "email"
+                },
+                "minItems": 1,
+                "maxItems": 10,
+                "description": "List of interviewer email addresses"
+              },
+              "interviewType": {
+                "type": "string",
+                "enum": ["technical", "behavioral", "final"],
+                "description": "Type of interview"
+              },
+              "idempotencyKey": {
+                "type": "string",
+                "format": "uuid",
+                "description": "Unique key to prevent duplicate scheduling"
+              }
+            },
+            "required": ["candidateId", "interviewDateTime", "interviewerEmails", "idempotencyKey"]
+          },
+          "confirmation": {
+            "type": "object",
+            "properties": {
+              "required": {
+                "type": "boolean",
+                "const": true
+              },
+              "message": {
+                "type": "string"
+              }
+            },
+            "description": "Confirmation gate configuration"
+          }
+        },
+        "required": ["action", "parameters", "confirmation"]
+      }
+    }
+  ]
+}
